@@ -5,12 +5,13 @@ var gulp = require('gulp'),
     browserSync = require('browser-sync'),
     del = require('del'),
     imagemin = require('gulp-imagemin'),
-    uglify = require('gulp-uglify'),
+    uglify = require('gulp-uglify-es').default,
     usemin = require('gulp-usemin'),
     rev = require('gulp-rev'),
     cleanCss = require('gulp-clean-css'),
     flatmap = require('gulp-flatmap'),
     htmlmin = require('gulp-htmlmin');
+
 
  
 gulp.task('sass', function () {
@@ -61,14 +62,22 @@ gulp.task('imagemin', function() {
     .pipe(gulp.dest('dist/img'));
 });
 
+//gulp.task('test', function() {
+//    return gulp.src('js/*.js')
+//        .pipe(uglify())
+//        .pipe(gulp.dest('./dist/'))
+//});
+
 gulp.task('usemin', function() {
   return gulp.src('./*.html')
-  .pipe(flatmap(function(stream, file){
+      .pipe(flatmap(function(stream, file){
       return stream
         .pipe(usemin({
             css: [ rev() ],
             html: [ function() { return htmlmin({ collapseWhitespace: true })} ],
-            js: [ uglify(), rev() ],
+            js: [ uglify().on('error', function(e){
+            console.log(e);
+         }), rev() ],
             inlinejs: [ uglify() ],
             inlinecss: [ cleanCss(), 'concat' ]
         }))
